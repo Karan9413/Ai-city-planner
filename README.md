@@ -44,38 +44,45 @@ adaptive-ai/
 ### 1. Clone & Environment Isolation
 Clone your repository and navigate to the project root:
 
+```bash
 git clone [https://github.com/Karan9413/Ai-city-planner.git](https://github.com/Karan9413/Ai-city-planner.git)
 cd Ai-city-planner
+```
 Create a virtual environment (Python 3.11 or 3.12 is highly recommended to avoid local binary compilation issues with tokenization libraries):
-
-PowerShell
+```bash
 # Using Native Python Venv
 python -m venv env
 .\env\Scripts\Activate.ps1
-
+```
+2. Install Backend Dependencies
+```bash
 # OR Using Conda (Recommended for Windows environments)
 conda create -n city_planner python=3.11 -y
 conda activate city_planner
-2. Install Backend Dependencies
-PowerShell
-cd backend
-pip install -r requirements.txt
-3. Environment Configuration
-Create a .env file in the root of the backend directory. Do not commit this file to source control.
-
-Code snippet
+```
+3. Environment ConfigurationCreate a .env file in the root of the backend directory.
+Do not commit this file to source control.
+```bash
 GEMINI_API_KEY=your_google_gcp_api_key_here
-PORT=8000
+PORT=8000r
+```
 4. Install Frontend Dependencies
-PowerShell
+```bash
 cd ../frontend
 npm install
+```
 🚀 Running the Application
 Start the Backend Server
-PowerShell
+
+```bash
 cd backend
 python main.py
+```
 Start the Frontend Interface
-PowerShell
+
+```bash
 cd frontend
 npm run dev
+```
+
+
