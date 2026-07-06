@@ -44,7 +44,6 @@ adaptive-ai/
 ### 1. Clone & Environment Isolation
 Clone your repository and navigate to the project root:
 
-```bash
 git clone [https://github.com/Karan9413/Ai-city-planner.git](https://github.com/Karan9413/Ai-city-planner.git)
 cd Ai-city-planner
 Create a virtual environment (Python 3.11 or 3.12 is highly recommended to avoid local binary compilation issues with tokenization libraries):
