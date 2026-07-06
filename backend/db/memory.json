@@ -1,0 +1,208 @@
+{
+  "default": {
+    "history": [
+      {
+        "user": "hi",
+        "assistant": "API ERROR: Method doesn't allow unregistered callers (callers without established identity). Please use API Key or other form of API consumer identity to call this API."
+      },
+      {
+        "user": "hi",
+        "assistant": "API ERROR: Method doesn't allow unregistered callers (callers without established identity). Please use API Key or other form of API consumer identity to call this API."
+      },
+      {
+        "user": "hi",
+        "assistant": "I'm unable to respond to your message. There's a technical issue preventing me from connecting properly, as if a necessary key is missing."
+      },
+      {
+        "user": "hi",
+        "assistant": {
+          "status_code": 200,
+          "response": {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "I'm still encountering the same technical problem. I can't process your message right now due to an issue with my connection."
+                    }
+                  ],
+                  "role": "model"
+                },
+                "finishReason": "STOP",
+                "index": 0
+              }
+            ],
+            "usageMetadata": {
+              "promptTokenCount": 243,
+              "candidatesTokenCount": 27,
+              "totalTokenCount": 939,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 243
+                }
+              ],
+              "thoughtsTokenCount": 669,
+              "serviceTier": "standard"
+            },
+            "modelVersion": "gemini-2.5-flash",
+            "responseId": "wohHasLIB9X4juMPop71iAs"
+          }
+        }
+      }
+    ],
+    "profile": {
+      "level": 0.5,
+      "verbosity": 0.5,
+      "technical_interest": 0.3
+    }
+  },
+  "user1": {
+    "history": [
+      {
+        "user": "hi\n",
+        "assistant": {
+          "status_code": 200,
+          "response": {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "Hello! How can I assist you today?"
+                    }
+                  ],
+                  "role": "model"
+                },
+                "finishReason": "STOP",
+                "index": 0
+              }
+            ],
+            "usageMetadata": {
+              "promptTokenCount": 117,
+              "candidatesTokenCount": 9,
+              "totalTokenCount": 428,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 117
+                }
+              ],
+              "thoughtsTokenCount": 302,
+              "serviceTier": "standard"
+            },
+            "modelVersion": "gemini-2.5-flash",
+            "responseId": "mIlHaqaFNp-8juMPut3eSQ"
+          }
+        }
+      },
+      {
+        "user": "hi",
+        "assistant": {
+          "status_code": 200,
+          "response": {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "Hello again! What can I do for you?"
+                    }
+                  ],
+                  "role": "model"
+                },
+                "finishReason": "STOP",
+                "index": 0
+              }
+            ],
+            "usageMetadata": {
+              "promptTokenCount": 288,
+              "candidatesTokenCount": 10,
+              "totalTokenCount": 678,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 288
+                }
+              ],
+              "thoughtsTokenCount": 380,
+              "serviceTier": "standard"
+            },
+            "modelVersion": "gemini-2.5-flash",
+            "responseId": "4IlHaqKjE6i7juMP8fW3kA0"
+          }
+        }
+      },
+      {
+        "user": "hi",
+        "assistant": "AI error: invalid response from model"
+      },
+      {
+        "user": "hi",
+        "assistant": {
+          "status_code": 200,
+          "response": {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "Hi there! How may I help?"
+                    }
+                  ],
+                  "role": "model"
+                },
+                "finishReason": "STOP",
+                "index": 0
+              }
+            ],
+            "usageMetadata": {
+              "promptTokenCount": 481,
+              "candidatesTokenCount": 8,
+              "totalTokenCount": 728,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 481
+                }
+              ],
+              "thoughtsTokenCount": 239,
+              "serviceTier": "standard"
+            },
+            "modelVersion": "gemini-2.5-flash",
+            "responseId": "FItHatbqFe3-juMPzb-CoAE"
+          }
+        }
+      },
+      {
+        "user": "hi",
+        "assistant": "API ERROR: "
+      },
+      {
+        "user": "hi",
+        "assistant": "API ERROR: "
+      },
+      {
+        "user": "hi",
+        "assistant": "API ERROR: "
+      },
+      {
+        "user": "hi",
+        "assistant": "API ERROR: "
+      },
+      {
+        "user": "hello",
+        "assistant": "API ERROR: "
+      },
+      {
+        "user": "hello\n",
+        "assistant": "API ERROR: "
+      }
+    ],
+    "profile": {
+      "level": 0.5,
+      "verbosity": 0.5,
+      "technical_interest": 0.3
+    }
+  }
+}

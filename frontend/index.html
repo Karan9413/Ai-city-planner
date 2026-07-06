@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI City Planning Advisor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .header {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #334155;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .tab-btn {
+            padding: 10px 18px;
+            border: 1px solid #475569;
+            background: transparent;
+            color: #cbd5e1;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+            border-color: #0ea5e9;
+            color: white;
+            box-shadow: 0 0 20px rgba(14, 165, 233, 0.3);
+        }
+
+        .container {
+            display: flex;
+            height: calc(100vh - 70px);
+        }
+
+        .page {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .page.active {
+            display: flex;
+        }
+
+        .planner-content {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            overflow-y: auto;
+            height: 100%;
+        }
+
+        .form-section {
+            flex: 0 0 300px;
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            height: fit-content;
+            overflow-y: auto;
+            max-height: calc(100vh - 130px);
+        }
+
+        .form-section h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #0ea5e9;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #cbd5e1;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid #475569;
+            border-radius: 6px;
+            color: #e2e8f0;
+            font-size: 13px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #0ea5e9;
+            box-shadow: 0 0 8px rgba(14, 165, 233, 0.2);
+        }
+
+        .slider-group {
+            margin-bottom: 12px;
+        }
+
+        .slider-label {
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            color: #cbd5e1;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 4px;
+            background: #334155;
+            border-radius: 2px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+            cursor: pointer;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(14, 165, 233, 0.3);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .results-section {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .result-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            min-height: 300px;
+        }
+
+        .result-card h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #0ea5e9;
+        }
+
+        #chartCanvas {
+            max-width: 100%;
+            height: 300px !important;
+        }
+
+        #mapContainer {
+            height: 350px;
+            border-radius: 8px;
+            border: 1px solid #475569;
+            overflow: hidden;
+        }
+
+        .phase-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .phase-btn {
+            padding: 8px 12px;
+            border: 2px solid #475569;
+            background: transparent;
+            color: #cbd5e1;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .phase-btn.active {
+            border-color: #0ea5e9;
+            color: #0ea5e9;
+            background: rgba(14, 165, 233, 0.1);
+        }
+
+        .phase-content {
+            background: rgba(15, 23, 42, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #0ea5e9;
+        }
+
+        .phase-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #06b6d4;
+        }
+
+        .project-list {
+            list-style: none;
+        }
+
+        .project-item {
+            padding: 8px;
+            margin-bottom: 8px;
+            background: rgba(51, 65, 85, 0.4);
+            border-radius: 6px;
+            font-size: 13px;
+            border-left: 3px solid #10b981;
+            line-height: 1.5;
+        }
+
+        .project-item strong {
+            color: #0ea5e9;
+        }
+
+        .budget-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+
+        .budget-label {
+            flex: 0 0 120px;
+            font-weight: 500;
+        }
+
+        .budget-visual {
+            flex: 1;
+            height: 24px;
+            background: #334155;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .budget-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0ea5e9, #06b6d4);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .tradeoff-section {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid #ef4444;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 15px;
+        }
+
+        .tradeoff-section h4 {
+            color: #fca5a5;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .tradeoff-item {
+            font-size: 12px;
+            color: #cbd5e1;
+            margin-bottom: 5px;
+            padding-left: 15px;
+            position: relative;
+        }
+
+        .tradeoff-item:before {
+            content: '⚠️';
+            position: absolute;
+            left: 0;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .metric-box {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+            padding: 10px;
+            border-radius: 6px;
+        }
+
+        .metric-label {
+            font-size: 11px;
+            color: #86efac;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .metric-value {
+            font-size: 13px;
+            color: #e2e8f0;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+        }
+
+        .empty-content {
+            text-align: center;
+            color: #94a3b8;
+        }
+
+        .empty-content div:first-child {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 10px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+            color: white;
+        }
+
+        .message.assistant {
+            align-self: flex-start;
+            background: rgba(51, 65, 85, 0.6);
+            border: 1px solid #475569;
+            color: #e2e8f0;
+        }
+
+        .chat-input-area {
+            padding: 16px 20px;
+            background: rgba(30, 41, 59, 0.7);
+            border-top: 1px solid #334155;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid #475569;
+            border-radius: 8px;
+            color: #e2e8f0;
+            resize: none;
+            max-height: 100px;
+        }
+
+        .btn-send {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>🏗️ AI City Planning Advisor</h1>
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('planner')">📊 Planner</button>
+        <button class="tab-btn" onclick="switchTab('chat')">💬 Chat</button>
+    </div>
+</div>
+
+<div class="container">
+    <div class="page active" id="planner">
+        <div class="planner-content">
+            <div class="form-section">
+                <h2>📋 Parameters</h2>
+                <div class="form-group">
+                    <label>📍 Population</label>
+                    <input type="number" id="population" value="100000">
+                </div>
+                <div class="form-group">
+                    <label>💰 Budget ($)</label>
+                    <input type="number" id="budget" value="50000000">
+                </div>
+
+                <h3 style="margin-top: 15px; margin-bottom: 10px; color: #0ea5e9; font-size: 13px;">Current State</h3>
+                <div class="form-group">
+                    <label>🏥 Healthcare</label>
+                    <input type="number" id="healthcare" value="200">
+                </div>
+                <div class="form-group">
+                    <label>🎓 Education</label>
+                    <input type="number" id="education" value="60">
+                </div>
+                <div class="form-group">
+                    <label>💧 Water</label>
+                    <input type="number" id="water" value="80">
+                </div>
+                <div class="form-group">
+                    <label>🚗 Transport</label>
+                    <input type="number" id="transport" value="200">
+                </div>
+                <div class="form-group">
+                    <label>🏠 Housing</label>
+                    <input type="number" id="housing" value="25000">
+                </div>
+                <div class="form-group">
+                    <label>⚡ Electricity</label>
+                    <input type="number" id="electricity" value="95">
+                </div>
+
+                <h3 style="margin-top: 15px; margin-bottom: 10px; color: #0ea5e9; font-size: 13px;">Priorities</h3>
+                <div class="slider-group">
+                    <div class="slider-label"><span>🏥 Health</span><span id="val-healthcare">1.5</span></div>
+                    <input type="range" id="slider-healthcare" min="0.5" max="2" step="0.1" value="1.5" oninput="updateSlider('healthcare')">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-label"><span>💧 Water</span><span id="val-water">1.3</span></div>
+                    <input type="range" id="slider-water" min="0.5" max="2" step="0.1" value="1.3" oninput="updateSlider('water')">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-label"><span>🏠 Housing</span><span id="val-housing">1.2</span></div>
+                    <input type="range" id="slider-housing" min="0.5" max="2" step="0.1" value="1.2" oninput="updateSlider('housing')">
+                </div>
+                <button class="btn-submit" id="submitBtn" onclick="submitPlan()">Generate Plan</button>
+            </div>
+
+            <div class="results-section" id="resultsSection" style="display: none;">
+                <div class="result-card">
+                    <h3>📊 Budget Allocation</h3>
+                    <canvas id="chartCanvas"></canvas>
+                </div>
+
+                <div class="result-card">
+                    <h3>🏗️ Phased Development Plan</h3>
+                    <div class="phase-tabs">
+                        <button class="phase-btn active" onclick="showPhase(1)">Phase 1<br/>(Y1-2)</button>
+                        <button class="phase-btn" onclick="showPhase(2)">Phase 2<br/>(Y3-4)</button>
+                        <button class="phase-btn" onclick="showPhase(3)">Phase 3<br/>(Y5+)</button>
+                    </div>
+                    <div id="phaseContent"></div>
+                    <div class="tradeoff-section" id="tradeoffSection"></div>
+                    <div class="metrics-grid" id="metricsGrid"></div>
+                </div>
+            </div>
+
+            <div class="empty-state" id="emptyState">
+                <div class="empty-content">
+                    <div>🏗️</div>
+                    <h2>Ready to Plan</h2>
+                    <p>Fill parameters and click "Generate Plan"</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page" id="chat">
+        <div class="chat-container">
+            <div style="padding: 12px 20px; background: rgba(30, 41, 59, 0.7); border-bottom: 1px solid #334155;">
+                <label style="font-size: 13px;"><input type="radio" name="audience" value="student" checked> 📚 Student</label>
+                <label style="font-size: 13px; margin-left: 20px;"><input type="radio" name="audience" value="professional"> 💼 Professional</label>
+            </div>
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="chat-input-area">
+                <textarea class="chat-input" id="chatInput" placeholder="Ask about the plan..."></textarea>
+                <button class="btn-send" onclick="sendChat()">Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API = "http://127.0.0.1:8000";
+    let currentPlan = null;
+    let chart = null;
+    let currentPhase = 1;
+
+    function switchTab(tab) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(tab).classList.add('active');
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+    }
+
+    function updateSlider(s) {
+        document.getElementById('val-' + s).innerText = document.getElementById('slider-' + s).value;
+    }
+
+    async function submitPlan() {
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerText = 'Generating...';
+
+        const payload = {
+            user_id: "user1",
+            budget: parseInt(document.getElementById('budget').value),
+            population: parseInt(document.getElementById('population').value),
+            current_state: {
+                healthcare: parseInt(document.getElementById('healthcare').value),
+                education: parseInt(document.getElementById('education').value),
+                water: parseInt(document.getElementById('water').value),
+                sanitation: 70000,
+                transport: parseInt(document.getElementById('transport').value),
+                green_space: 500000,
+                housing: parseInt(document.getElementById('housing').value),
+                electricity: parseInt(document.getElementById('electricity').value),
+            },
+            priorities: {
+                healthcare: parseFloat(document.getElementById('slider-healthcare').value),
+                education: 1.0,
+                water: parseFloat(document.getElementById('slider-water').value),
+                sanitation: 1.0,
+                transport: 0.8,
+                green_space: 0.7,
+                housing: parseFloat(document.getElementById('slider-housing').value),
+                electricity: parseFloat(document.getElementById('slider-electricity').value),
+            }
+        };
+
+        try {
+            const res = await fetch(API + "/plan", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+            currentPlan = data;
+
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('resultsSection').style.display = 'flex';
+
+            drawChart(data.allocation_percentages);
+            populatePhases(data);
+            populateTradeoffs();
+            populateMetrics();
+
+        } catch (e) {
+            alert('Error: ' + e.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerText = 'Generate Plan';
+        }
+    }
+
+    function drawChart(allocations) {
+        const canvas = document.getElementById('chartCanvas');
+        
+        if (chart) {
+            chart.destroy();
+        }
+
+        const labels = Object.keys(allocations).map(s => s.replace('_', ' '));
+        const data = Object.values(allocations);
+        const colors = ['#0ea5e9', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#eab308'];
+
+        const ctx = canvas.getContext('2d');
+        chart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: colors,
+                    borderColor: '#0f172a',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {color: '#cbd5e1', font: {size: 11}, padding: 10}
+                    }
+                }
+            }
+        });
+    }
+
+    function populatePhases(data) {
+        const phases = [
+            {
+                title: 'PHASE 1: Foundation & Critical Infrastructure (Year 1-2)',
+                description: 'Prioritize essential services that enable all other development',
+                sectors: ['Healthcare', 'Water', 'Electricity'],
+                details: [
+                    'Healthcare: ' + formatMoney(data.final_allocation.healthcare || 0) + ' → Establish 15 primary health centers, upgrade 3-4 major hospitals, reduce avg distance to hospital from 15km to 8km',
+                    'Water: ' + formatMoney(data.final_allocation.water || 0) + ' → Build 3 treatment plants, lay 450km of piped networks, reach 80% coverage (up from 35%)',
+                    'Electricity: ' + formatMoney(data.final_allocation.electricity || 0) + ' → Install 250 MW renewable capacity (solar/wind), expand grid to 95%+ coverage, create smart metering system',
+                    'Transport: ' + formatMoney(data.final_allocation.transport || 0) + ' → Build 80km of primary roads, establish key transit corridors'
+                ]
+            },
+            {
+                title: 'PHASE 2: Social Infrastructure (Year 3-4)',
+                description: 'Build human capital and housing security',
+                sectors: ['Housing', 'Education', 'Sanitation'],
+                details: [
+                    'Housing: ' + formatMoney(data.final_allocation.housing || 0) + ' → Develop 8,000 affordable units for low-income families, partner with cooperatives for sustainable development',
+                    'Education: ' + formatMoney(data.final_allocation.education || 0) + ' → Build 40 new schools, train 500 teachers, achieve 100% primary enrollment',
+                    'Sanitation: Deploy 500km sewage network, build 3 treatment facilities, eliminate open defecation'
+                ]
+            },
+            {
+                title: 'PHASE 3: Quality of Life (Year 5+)',
+                description: 'Optimize systems and build livability',
+                sectors: ['Transport', 'Green Space'],
+                details: [
+                    'Transport: ' + formatMoney(data.final_allocation.transport || 0) + ' → Introduce 500 bus fleet, build 50km metro/light rail, reduce commute time by 40%',
+                    'Green Space: ' + formatMoney(data.final_allocation.green_space || 0) + ' → Create 25 parks (750 acres), plant urban forest, improve air quality by 35%',
+                    'Smart City: Deploy AI traffic management, digital payment systems, open data portal'
+                ]
+            }
+        ];
+
+        let html = phases[currentPhase - 1];
+        let phaseContent = `
+            <div class="phase-content">
+                <div class="phase-title">${html.title}</div>
+                <p style="font-size: 12px; margin-bottom: 12px; color: #cbd5e1;">${html.description}</p>
+        `;
+
+        html.details.forEach(detail => {
+            phaseContent += `<div class="project-item">${detail}</div>`;
+        });
+
+        phaseContent += '</div>';
+        document.getElementById('phaseContent').innerHTML = phaseContent;
+    }
+
+    function populateTradeoffs() {
+        const tradeoffs = [
+            '⚠️ Water & Electricity get largest budgets due to 99% infrastructure gaps',
+            '⚠️ Green space deferred to Phase 3 (quality-of-life > immediate survival needs)',
+            '⚠️ Education initially limited because current coverage is already good',
+            '⚠️ Healthcare prioritized for equity: direct health ROI, saves lives'
+        ];
+
+        let html = '<h4>Key Tradeoffs & Rationale</h4>';
+        tradeoffs.forEach(t => {
+            html += `<div class="tradeoff-item">${t}</div>`;
+        });
+
+        document.getElementById('tradeoffSection').innerHTML = html;
+    }
+
+    function populateMetrics() {
+        const metrics = [
+            {label: 'Healthcare', value: '15km → 8km avg distance'},
+            {label: 'Water Coverage', value: '35% → 80% (Phase 1)'},
+            {label: 'Electricity', value: '95% → 100% grid access'},
+            {label: 'Jobs Created', value: '5,000+ permanent roles'},
+            {label: 'Housing Units', value: '8,000 affordable homes'},
+            {label: 'HDI Target', value: 'Current → 0.72+'}
+        ];
+
+        let html = '';
+        metrics.forEach(m => {
+            html += `
+                <div class="metric-box">
+                    <div class="metric-label">${m.label}</div>
+                    <div class="metric-value">${m.value}</div>
+                </div>
+            `;
+        });
+
+        document.getElementById('metricsGrid').innerHTML = html;
+    }
+
+    function showPhase(p) {
+        currentPhase = p;
+        document.querySelectorAll('.phase-btn').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+        populatePhases(currentPlan);
+    }
+
+    function formatMoney(n) {
+        if (n === 0) return '$0';
+        if (n >= 1000000) return '$' + (n / 1000000).toFixed(1) + 'M';
+        return '$' + n.toLocaleString();
+    }
+
+    async function sendChat() {
+        const input = document.getElementById('chatInput');
+        const msg = input.value.trim();
+        if (!msg) return;
+
+        const audience = document.querySelector('input[name="audience"]:checked').value;
+        const messages = document.getElementById('chatMessages');
+
+        const userMsg = document.createElement('div');
+        userMsg.className = 'message user';
+        userMsg.innerText = msg;
+        messages.appendChild(userMsg);
+        input.value = '';
+
+        const planContext = currentPlan ? 
+            `User's city plan: ${JSON.stringify(currentPlan.allocation_percentages)}\n\n` : '';
+
+        const systemPrompt = audience === 'student' ?
+            'Explain simply for a student. Use examples and avoid jargon.' :
+            'Explain professionally for a city official. Be concise and data-focused.';
+
+        try {
+            const res = await fetch(API + "/chat", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    user_id: "user1",
+                    message: planContext + systemPrompt + "\n\nQuestion: " + msg
+                })
+            });
+
+            const data = await res.json();
+            const reply = data.response || 'No response';
+
+            const assistantMsg = document.createElement('div');
+            assistantMsg.className = 'message assistant';
+            assistantMsg.innerText = reply;
+            messages.appendChild(assistantMsg);
+
+            messages.scrollTop = messages.scrollHeight;
+        } catch (e) {
+            const errMsg = document.createElement('div');
+            errMsg.className = 'message assistant';
+            errMsg.innerText = 'Error: ' + e.message;
+            messages.appendChild(errMsg);
+        }
+    }
+
+    document.getElementById('chatInput')?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendChat();
+        }
+    });
+</script>
+
+</body>
+</html>

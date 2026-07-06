@@ -1,0 +1,10 @@
+sector,unit,recommended_per_1000_pop,description,weight_default
+healthcare,hospital_beds,3.5,"WHO-recommended minimum hospital beds per 1000 population",1.2
+education,schools,0.6,"Recommended primary+secondary schools per 1000 population",1.1
+water,coverage_percent,100,"Target percent of population with piped water access",1.3
+sanitation,coverage_percent,100,"Target percent of population with waste/sewage collection",1.1
+transport,road_km,5.0,"Recommended road length in km per 1000 population",1.0
+green_space,sqm_per_person,9.0,"WHO-recommended minimum urban green space in sqm per person",0.8
+housing,units_per_1000,300,"Approximate target housing units per 1000 population",1.2
+electricity,coverage_percent,100,"Target percent of population with reliable electricity access",1.3
+ 
